@@ -17,15 +17,22 @@ namespace EncryptDecrypt
             try
             {
                 FileAttributes att = File.GetAttributes(name);
+                bool encrypt = false;
 
-                string Check;
-                string[] secretWord = File.ReadAllLines(name);
-                 Check = secretWord[secretWord.Length - 1].;
 
-                if ((att & FileAttributes.Encrypted) == FileAttributes.Encrypted && )
+                if ((att & FileAttributes.Encrypted) == FileAttributes.Encrypted)
                 {
-                    Console.WriteLine($"\nFile: {name.Remove(0, 5)} already encypted!");
-                    goto Exit;
+                    string[] secretWord = File.ReadAllLines(name);
+                    int StartIndexOfSecretWord = secretWord[secretWord.Length - 1].IndexOf('|');
+                    string Check = secretWord[secretWord.Length - 1].Substring(StartIndexOfSecretWord);
+
+                    encrypt = true;
+
+                    if (Check == SW)
+                    {
+                        Console.WriteLine($"\nFile: {name.Remove(0, 5)} already encypted!");
+                        goto Exit;
+                    }
                 }
 
                 byte[] buffer = File.ReadAllBytes(name);
@@ -37,9 +44,16 @@ namespace EncryptDecrypt
                 for (int i = 0; i < buffer.Length; i++)
                     bufferText += (char)buffer[i];
 
-                File.WriteAllText(name, bufferText + "|" + SW);
+                if (encrypt)
+                {
 
-                File.SetAttributes(name, att | FileAttributes.Encrypted);
+                }
+                else
+                {
+                    File.WriteAllText(name, bufferText + "|" + SW);
+                    File.SetAttributes(name, att | FileAttributes.Encrypted);
+                }
+
 
                 Console.WriteLine("Done!");
             }
@@ -50,10 +64,10 @@ namespace EncryptDecrypt
             Exit:
             Console.Read();
         }
-        //---------------------------------------------------------------------
-        static FileAttributes EncryptAttribute(FileAttributes attributes, FileAttributes attributesToEncrypt)
+//---------------------------------------------------------------------
+        static FileAttributes RemoveAttribute(FileAttributes attributes, FileAttributes attributesToRemove)
         {
-            return attributes & ~attributesToEncrypt;
+            return attributes & ~attributesToRemove;
         }
 //---------------------------------------------------------------------
         static void Menu(string[] names, int sel)
@@ -77,7 +91,7 @@ namespace EncryptDecrypt
                 else
                     Console.ForegroundColor = ConsoleColor.Gray;
 
-                Console.WriteLine($"{names[i].Remove(0, 5)}\t\t{AttName}");
+                Console.WriteLine($"{names[i].Remove(0, 5)}\t{AttName}");
 
             }
         }
