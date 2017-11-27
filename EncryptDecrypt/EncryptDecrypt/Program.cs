@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,30 +9,23 @@ namespace EncryptDecrypt
 {
     class Program
     {
-        //static string file = @"File/Test.txt";
-        static string file = @"File";
+        static string path = "Test.txt";
 
-        static void EncryptDecrypt(string SW, string name)
+        static void EncryptDecrypt(string SW)
         {
             try
             {
+                byte[] buffer = File.ReadAllBytes(path);
                 FileAttributes att = File.GetAttributes(name);
-                bool encrypt = false;
 
+                string Check;
+                string[] secretWord = File.ReadAllLines(name);
+                 Check = secretWord[secretWord.Length - 1].;
 
-                if ((att & FileAttributes.Encrypted) == FileAttributes.Encrypted)
+                if ((att & FileAttributes.Encrypted) == FileAttributes.Encrypted && )
                 {
-                    string[] secretWord = File.ReadAllLines(name);
-                    int StartIndexOfSecretWord = secretWord[secretWord.Length - 1].IndexOf('|');
-                    string Check = secretWord[secretWord.Length - 1].Substring(StartIndexOfSecretWord);
-
-                    encrypt = true;
-
-                    if (Check == SW)
-                    {
-                        Console.WriteLine($"\nFile: {name.Remove(0, 5)} already encypted!");
-                        goto Exit;
-                    }
+                    Console.WriteLine($"\nFile: {name.Remove(0, 5)} already encypted!");
+                    goto Exit;
                 }
 
                 byte[] buffer = File.ReadAllBytes(name);
@@ -44,16 +37,10 @@ namespace EncryptDecrypt
                 for (int i = 0; i < buffer.Length; i++)
                     bufferText += (char)buffer[i];
 
-                if (encrypt)
-                {
+                File.WriteAllText(path, bufferText);
+                File.WriteAllText(name, bufferText + "|" + SW);
 
-                }
-                else
-                {
-                    File.WriteAllText(name, bufferText + "|" + SW);
-                    File.SetAttributes(name, att | FileAttributes.Encrypted);
-                }
-
+                File.SetAttributes(name, att | FileAttributes.Encrypted);
 
                 Console.WriteLine("Done!");
             }
@@ -61,13 +48,14 @@ namespace EncryptDecrypt
             {
                 Console.WriteLine(ex.Message);
             }
+
             Exit:
             Console.Read();
         }
-//---------------------------------------------------------------------
-        static FileAttributes RemoveAttribute(FileAttributes attributes, FileAttributes attributesToRemove)
+        //---------------------------------------------------------------------
+        static FileAttributes EncryptAttribute(FileAttributes attributes, FileAttributes attributesToEncrypt)
         {
-            return attributes & ~attributesToRemove;
+            return attributes & ~attributesToEncrypt;
         }
 //---------------------------------------------------------------------
         static void Menu(string[] names, int sel)
@@ -91,50 +79,19 @@ namespace EncryptDecrypt
                 else
                     Console.ForegroundColor = ConsoleColor.Gray;
 
-                Console.WriteLine($"{names[i].Remove(0, 5)}\t{AttName}");
+                Console.WriteLine($"{names[i].Remove(0, 5)}\t\t{AttName}");
 
             }
         }
 //---------------------------------------------------------------------
         static void Main(string[] args)
         {
-            if (!File.Exists(file))
-                Directory.CreateDirectory(file);
+            //Console.WriteLine("Enter the path: ");
+            //string path = Console.ReadLine();
 
-            Console.CursorVisible = false;
-
-            string[] names = Directory.GetFiles(file);
-
-            int select = 0;
-
-            while (true)
-            {
-                Menu(names, select);
-
-                var key = Console.ReadKey(true).Key;
-
-                switch (key)
-                {
-                    case ConsoleKey.DownArrow:
-                        if (select < names.Length - 1)
-                            select++;
-                        break;
-                    case ConsoleKey.UpArrow:
-                        if (select > 0)
-                            select--;
-                        break;
-                    case ConsoleKey.Enter:
-                        Console.Clear();
-                        Console.CursorVisible = true;
-                        Console.ForegroundColor = ConsoleColor.Gray;
-                        Console.Write("Enter a secret word:\t\t");
-                        string SW = Console.ReadLine();
-                        EncryptDecrypt(SW, names[select]);
-                        Console.Clear();
-                        Console.CursorVisible = false;
-                        break;
-                }
-            }
+            Console.Write("Enter a secret word:\t\t");
+            string SW = Console.ReadLine();
+            EncryptDecrypt(SW);
         }
     }
 }
